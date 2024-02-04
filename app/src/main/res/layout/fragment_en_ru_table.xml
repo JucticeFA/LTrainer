@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/en_ru_fragment"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:tag="en_ru_table"
+    tools:context=".EnRuTableFragment">
+
+    <TextView
+        android:id="@+id/answer_1_enru_training"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/button_standard"
+        android:gravity="center"
+        android:minHeight="48dp"
+        android:text="answer1"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/answer_2_enru_training"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/button_standard"
+        android:gravity="center"
+        android:minHeight="48dp"
+        android:text="answer2"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/answer_3_enru_training"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/button_standard"
+        android:gravity="center"
+        android:minHeight="48dp"
+        android:text="answer3"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/answer_4_enru_training"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/button_standard"
+        android:gravity="center"
+        android:minHeight="48dp"
+        android:text="answer4"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/examples_enru_training"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="10dp"
+        android:gravity="center"
+        android:minHeight="48dp"
+        android:text="examples"
+        android:textStyle="italic" />
+
+    <TextView
+        android:id="@+id/next_enru_training"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="10dp"
+        android:gravity="center"
+        android:minHeight="48dp"
+        android:text="next"
+        android:textColor="@color/purple_200"
+        android:textStyle="bold" />
+
+</androidx.appcompat.widget.LinearLayoutCompat>

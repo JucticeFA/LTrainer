@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/view_card_context"
+        android:title="view card" />
+    <item
+        android:id="@+id/learn_now_context"
+        android:title="learn now" />
+    <item
+        android:id="@+id/put_into_learning_list_context"
+        android:title="put into learning list" />
+    <item
+        android:id="@+id/reset_progress_context"
+        android:title="reset progress" />
+    <item
+        android:id="@+id/remove_context"
+        android:title="remove" />
+</menu>

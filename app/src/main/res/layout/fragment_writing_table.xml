@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/writing_fragment"
+    android:orientation="vertical"
+    android:tag="full_writing_table"
+    tools:context=".WritingTableFragment">
+
+    <EditText
+        android:id="@+id/full_answer_edit_training"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:imeOptions="actionDone"
+        android:inputType="textMultiLine" />
+
+    <TextView
+        android:id="@+id/users_answer_training"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="user's answer"/>
+
+    <Button
+        android:id="@+id/check_the_answer_training"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:enabled="true"
+        android:text="check the answer" />
+
+    <TextView
+        android:id="@+id/right_answer_training"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="right answer"
+        android:textColor="#FFC6FF85" />
+
+    <TextView
+        android:id="@+id/examples_writing_training"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="10dp"
+        android:gravity="center"
+        android:minHeight="48dp"
+        android:text="examples"
+        android:textStyle="italic" />
+
+    <TextView
+        android:id="@+id/next_writing_training"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="10dp"
+        android:textColor="@color/purple_200"
+        android:gravity="center"
+        android:minHeight="48dp"
+        android:text="next"
+        android:textStyle="bold" />
+
+</androidx.appcompat.widget.LinearLayoutCompat>

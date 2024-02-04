@@ -1,0 +1,381 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingStart="8dp"
+    android:paddingEnd="8dp"
+    tools:context=".InsertWordActivity">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/word_card_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:menu="@menu/word_card_menu"
+        app:popupTheme="@style/Widget.AppCompat.Light.PopupMenu.Overflow" />
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/nested_scroll_view_word_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:background="@drawable/button_standard"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:paddingBottom="8dp">
+
+                    <EditText
+                        android:id="@+id/new_expression_word_card_edit"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:cursorVisible="false"
+                        android:hint="@string/word_or_expression_word_hint"
+                        android:inputType="textAutoCorrect|textMultiLine"
+                        android:minHeight="48dp" />
+
+                    <TextView
+                        android:id="@+id/transcription_word_card_text"
+                        style="@style/word_transcription_summary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/new_expression_word_card_edit"
+                        android:layout_alignParentLeft="true"
+                        android:text="@string/transcription_tap_to_edit_button" />
+
+                    <EditText
+                        android:id="@+id/transcription_word_card_edit"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/transcription_word_card_text"
+                        android:hint="@string/transcription"
+                        android:imeOptions="actionDone"
+                        android:inputType="textMultiLine"
+                        android:minHeight="48dp"
+                        android:visibility="gone" />
+
+                    <EditText
+                        android:id="@+id/new_translate_edit"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/pronunciation_button"
+                        android:hint="@string/translates_word_hint"
+                        android:inputType="textMultiLine"
+                        android:minHeight="48dp"
+                        android:textStyle="italic" />
+
+                    <androidx.appcompat.widget.AppCompatImageButton
+                        android:id="@+id/pronunciation_button"
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:layout_below="@id/transcription_word_card_edit"
+                        android:background="@color/background_floating_material_dark"
+                        android:contentDescription="@string/app_name"
+                        android:src="@drawable/play_sound" />
+
+                    <Spinner
+                        android:id="@+id/categories_spinner_word_card"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/new_translate_edit"
+                        android:layout_alignParentEnd="true"
+                        android:contentDescription="@string/app_name"
+                        android:textAlignment="viewEnd" />
+
+                    <TextView
+                        android:id="@+id/show_notes_word_card"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/categories_spinner_word_card"
+                        android:text="--notes--" />
+
+                    <androidx.appcompat.widget.LinearLayoutCompat
+                        android:id="@+id/notes_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/show_notes_word_card"
+                        android:visibility="gone">
+
+                        <EditText
+                            android:id="@+id/notes_editor_word_card"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@null"
+                            android:cursorVisible="true"
+                            android:imeOptions="actionDone"
+                            android:inputType="textMultiLine"
+                            android:textSize="14sp" />
+
+                    </androidx.appcompat.widget.LinearLayoutCompat>
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:id="@+id/example_editor_layout_word_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:visibility="gone">
+
+                    <ImageButton
+                        android:id="@+id/close_button_word_card"
+                        android:layout_width="35dp"
+                        android:layout_height="35dp"
+                        android:layout_below="@id/example_translate_edit_word_card"
+                        android:layout_alignParentEnd="true"
+                        android:background="@android:color/transparent"
+                        android:src="@drawable/baseline_close_24" />
+
+                    <EditText
+                        android:id="@+id/example_edit_word_card"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@null"
+                        android:hint="@string/example_hint"
+                        android:minHeight="40dp"
+                        android:textSize="16sp" />
+
+                    <EditText
+                        android:id="@+id/example_translate_edit_word_card"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/example_edit_word_card"
+                        android:background="@null"
+                        android:hint="@string/translate_hint"
+                        android:minHeight="40dp"
+                        android:textSize="16sp"
+                        android:textStyle="italic" />
+
+                    <Spinner
+                        android:id="@+id/categories_spinner_example_word_card"
+                        android:layout_width="wrap_content"
+                        android:layout_height="35dp"
+                        android:layout_below="@id/example_translate_edit_word_card"
+                        android:contentDescription="@string/app_name" />
+
+                    <ImageButton
+                        android:id="@+id/save_example_word_card"
+                        android:layout_width="35dp"
+                        android:layout_height="35dp"
+                        android:layout_below="@id/example_translate_edit_word_card"
+                        android:layout_toStartOf="@id/close_button_word_card"
+                        android:background="@android:color/transparent"
+                        android:src="@drawable/baseline_check_24" />
+
+                </RelativeLayout>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recycler_example_insert"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    tools:listitem="@layout/example_item_2" />
+
+                <RelativeLayout
+                    android:id="@+id/show_examples_layout_word_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@+id/label_show_examples_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:text="@string/show_other_examples" />
+
+                </RelativeLayout>
+
+                <TextView
+                    android:id="@+id/load_oxford_info_text_word_card"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:text="--load oxford's dictionary info--" />
+
+                <androidx.appcompat.widget.LinearLayoutCompat
+                    android:id="@+id/oxfords_info_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginBottom="16dp"
+                    android:background="@drawable/button_standard"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:orientation="vertical"
+                    android:padding="8dp"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@+id/oxfords_info_word"
+                        style="@style/oxfords_info_labels"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+                    <TextView
+                        android:id="@+id/oxfords_info_transcription"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp" />
+
+                    <TextView
+                        android:id="@+id/oxfords_info_lexical_categories_label"
+                        style="@style/oxfords_info_labels"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+                    <TextView
+                        android:id="@+id/oxfords_info_lexical_categories"
+                        style="@style/oxfords_info_content"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp" />
+
+                    <TextView
+                        android:id="@+id/oxfords_info_examples_label"
+                        style="@style/oxfords_info_labels"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+                    <TextView
+                        android:id="@+id/oxfords_info_examples"
+                        style="@style/oxfords_info_content"
+                        android:textIsSelectable="true"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp" />
+
+                    <TextView
+                        android:id="@+id/oxfords_info_synonyms_label"
+                        style="@style/oxfords_info_labels"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+                    <TextView
+                        android:id="@+id/oxfords_info_synonyms"
+                        style="@style/oxfords_info_content"
+                        android:textIsSelectable="true"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+                </androidx.appcompat.widget.LinearLayoutCompat>
+
+                <TextView
+                    android:id="@+id/show_stat_button_word_card"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:layout_marginBottom="12dp"
+                    android:text="@string/show_statistics" />
+
+                <LinearLayout
+                    android:id="@+id/statistics_layout_word_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:background="@drawable/button_standard"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:orientation="vertical"
+                    android:padding="8dp"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@+id/word_card_categories"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/categories_statistics" />
+
+                    <TextView
+                        android:id="@+id/word_card_date_of_addition"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="22dp"
+                        android:text="@string/date_of_addition_statistics" />
+
+                    <TextView
+                        android:id="@+id/word_card_status"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/status_statistics" />
+
+                    <TextView
+                        android:id="@+id/word_card_learning_process"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/learning_process_statistics" />
+
+                    <TextView
+                        android:id="@+id/word_card_learning_percentage"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/learning_completed_statistics" />
+
+                    <TextView
+                        android:id="@+id/word_card_next_repeat"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/next_repeat_statistics" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </androidx.core.widget.NestedScrollView>
+
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:id="@+id/floatings_layout_word_card"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginBottom="16dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/add_example"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginEnd="16dp"
+                android:shadowColor="?attr/colorBackgroundFloating"
+                android:shadowDx="5"
+                android:shadowDy="5"
+                android:shadowRadius="3"
+                android:text="@string/example_addition"
+                android:textColor="#C6FF85"
+                android:textSize="20sp" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/save_floating_button"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:backgroundTint="@android:color/secondary_text_light"
+                android:contentDescription="@string/app_name"
+                android:src="@drawable/ic_baseline_save_24"
+                app:fabCustomSize="50dp"
+                app:maxImageSize="35dp" />
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+</androidx.appcompat.widget.LinearLayoutCompat>
+

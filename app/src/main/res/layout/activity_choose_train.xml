@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".ChooseTrainActivity">
+
+    <Button
+        android:id="@+id/train_offered_words_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="planned words for learning" />
+
+    <Button
+        android:id="@+id/train_chosen_words_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="choose words to learn" />
+
+    <Button
+        android:id="@+id/train_offered_sentences_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="planned sentences for learning" />
+
+    <Button
+        android:id="@+id/train_chosen_sentences_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="chose sentences to learn" />
+
+</androidx.appcompat.widget.LinearLayoutCompat>

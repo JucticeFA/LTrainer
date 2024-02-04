@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">lTrainerTabletest</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="categories_statistics">categories: </string>
+    <string name="date_of_addition_statistics">date of addition: </string>
+    <string name="status_statistics">status: </string>
+    <string name="learning_process_statistics">learning process: </string>
+    <string name="learning_completed_statistics">learning completed: </string>
+    <string name="next_repeat_statistics">next repeat: </string>
+    <string name="example_hint">Example</string>
+    <string name="translate_hint">Translate</string>
+
+    <string name="show_other_examples">--show other examples--</string>
+    <string name="example_addition">+ EXAMPLE</string>
+
+    <string name="show_statistics">--show statistics--</string>
+    <string name="load_synonyms_text_button">load synonyms</string>
+    <string name="translates_word_hint">translates</string>
+    <string name="transcription">transcription</string>
+    <string name="word_or_expression_word_hint">word or expression</string>
+    <string name="transcription_tap_to_edit_button">[~e~] - tap to edit</string>
+    <string name="hide_statistics">--hide statistics--</string>
+    <string name="next">next</string>
+    <string name="show_the_answer">show the answer</string>
+    <string name="exit_quiz">EXIT</string>
+</resources>
