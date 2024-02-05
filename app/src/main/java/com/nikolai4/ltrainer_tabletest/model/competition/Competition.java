@@ -44,7 +44,7 @@ public class Competition {
         this.ruEnTable = new RuEnTable(this, currentWord);
         this.lettersTable = new LettersTable(this, currentWord);
         this.fullWritingTable = new FullWritingTable(this, currentWord);
-        this.mainTable = enRuTable;   // since it's the 1st table, assign EnRuTable by default
+        this.mainTable = enRuTable;   // since it's the 1st table, EnRuTable is assigned by default
         this.currentTable = enRuTable;
 
         this.resultState = new FragmentState.ResultState();
