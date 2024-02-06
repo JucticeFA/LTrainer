@@ -136,10 +136,7 @@ public class LettersTableFragment extends Fragment {
                         gapsList.get(i).setText(state.getUsedLetters().get(i).toString());
                     }
                     setNextTextLabel(state.isAnswered());
-
                     competition.addMistake(currentWord, table);
-                    Log.d("getMistakes", "mistakes after rotation: " +
-                            competitionViewModel.getLiveDataCompetition().getValue().getMistakes().toString());
                 } else {
                     competition.checkAnswer(competition.getCurrentWord(), table);
                     competition.nextQuestion();
@@ -156,7 +153,6 @@ public class LettersTableFragment extends Fragment {
     }
 
     private void tieDataToViews(Competition competition, LettersTable table) {
-        String answer = table.getRightAnswer();
         List<Character> letters = table.getLetters();
         FragmentState.LettersState state = table.getFragmentState();
 

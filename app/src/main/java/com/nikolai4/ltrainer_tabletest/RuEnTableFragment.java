@@ -128,10 +128,7 @@ public class RuEnTableFragment extends Fragment {
                     String rightAnswer = table.getRightAnswer();
 
                     table.convertDataToState(rightAnswer);
-
                     competition.addMistake(currentWord, table);
-                    Log.d("getMistakes", "mistakes after rotation: " +
-                            competitionViewModel.getLiveDataCompetition().getValue().getMistakes().toString());
                 } else {
                     competition.checkAnswer(competition.getCurrentWord(), table);
                     competition.nextQuestion();
@@ -171,14 +168,7 @@ public class RuEnTableFragment extends Fragment {
                             buttons.get(j).setBackgroundResource(state.getButtonColors().get(j));
                         }
                         if (!usersAnswer.equalsIgnoreCase(rightAnswer)) {
-                            // will the mistake be saved after rotation? YES, but why?
                             competition.addMistake(currentWord, table);
-
-                            Log.d("getMistakes", "mistakes after rotation: " +
-                                    competitionViewModel.getLiveDataCompetition().getValue().getMistakes().toString());
-
-                            currentWord.adjustRepeat(true);
-                            wordViewModel.updateWord(currentWord);
                         } else {
                             try {
                                 competition.mistakeByWord(currentWord).fix();

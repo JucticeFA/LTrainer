@@ -2,6 +2,7 @@ package com.nikolai4.ltrainer_tabletest.apiwork;
 
 // dict.1.1.20230827T095647Z.a0a3889d81f27a84.e4b7f10161413ef6b5070e9562c2a7a628cf9b5c - yandex key
 // https://api.dictionaryapi.dev/api/v2/entries/en/ - dictionaryapi.dev
+// https://wordsapiv1.p.mashape.com/words/
 
 import android.net.Uri;
 import android.util.Log;

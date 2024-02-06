@@ -105,11 +105,11 @@ public class Competition {
                     + " currentTable: " + currentTable.getClass().getSimpleName()
                     + ", mainTable: " + mainTable.getClass().getSimpleName());
             if (mistakeExists(currentWord)) {
+                repeatMode = true;
                 Mistake mistake;
                 try {
                     mistake = mistakeByWord(currentWord);
                     if (!mistake.isFixed()) {
-                        repeatMode = true;
                         currentTable = mistake.getTable();
                         Log.d("tablescompare", "2.1) word: " + currentWord.getExpression()
                                 + ", mistake: " + mistake.word.getExpression()

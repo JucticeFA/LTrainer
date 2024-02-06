@@ -116,10 +116,6 @@ public class EnRuTableFragment extends Fragment {
                 setNextClickListener(nextText, c);
             }
         });
-
-        Log.d("countofcreates", "enRuTableFragment: ");
-        Log.d("getMistakes", "mistakes after rotation: " +
-                competitionViewModel.getLiveDataCompetition().getValue().getMistakes().toString());
     }
 
     public void setNextClickListener(TextView nextText, Competition competition) {
@@ -130,17 +126,12 @@ public class EnRuTableFragment extends Fragment {
                 EnRuTable table = competition.getEnRuTable();
                 FragmentState.EnRuState state = table.getFragmentState();
 
-                Log.d("getanswers", "table.getAnswers: " + table.getAnswers());
                 if (!state.isAnswered()) {
                     Word currentWord = competition.getCurrentWord();
                     String rightAnswer = table.getRightAnswer();
 
                     table.convertDataToState(rightAnswer);
-
                     competition.addMistake(currentWord, table);
-                    wordViewModel.updateWord(currentWord);
-                    Log.d("getMistakes", "mistakes after rotation: " +
-                            competitionViewModel.getLiveDataCompetition().getValue().getMistakes().toString());
                 } else {
                     competition.checkAnswer(competition.getCurrentWord(), table);
                     competition.nextQuestion();
@@ -179,14 +170,7 @@ public class EnRuTableFragment extends Fragment {
                             buttons.get(j).setBackgroundResource(state.getButtonColors().get(j));
                         }
                         if (!usersAnswer.equalsIgnoreCase(rightAnswer)) {
-                            // will the mistake be saved after rotation? YES, but why?
                             competition.addMistake(currentWord, table);
-
-                            Log.d("getMistakes", "mistakes after rotation: " +
-                                    competitionViewModel.getLiveDataCompetition().getValue().getMistakes().toString());
-
-                            currentWord.adjustRepeat(true);
-                            wordViewModel.updateWord(currentWord);
                         }
                         else {
                             try {

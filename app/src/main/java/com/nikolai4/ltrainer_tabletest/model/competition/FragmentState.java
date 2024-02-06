@@ -227,7 +227,7 @@ public class FragmentState {
 
     public static class WritingState {
         private String usersAnswer = "";
-        private boolean isAnswered;
+        private boolean isAnswered = false;
         public WritingState() {
             resetState();
         }

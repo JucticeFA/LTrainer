@@ -36,7 +36,7 @@ public class Word implements Serializable {
     @NonNull
     private List<String> translates;
 
-    // 12.01.23. Added due to some problems related to the List of translates may appear
+    // 12.01.24. Added due to some problems related to the List of translates may appear
     // The main idea is: one word - one meaning
 //    @ColumnInfo(name = "meaning")
 //    @NonNull
@@ -346,7 +346,7 @@ public class Word implements Serializable {
     }
 
     /**
-     * Compiles a Word's statistics after checking a user's answer
+     * Compiles the Word's statistics after checking a user's answer
      * on the last table (by default FullWritingTable).
      * Word's statistics consists of learning percentage, progress state and difficulty.
      */

@@ -116,16 +116,14 @@ public class WritingTableFragment extends Fragment {
         nextText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Word currentWord = competition.getCurrentWord();
                 FullWritingTable table = competition.getFullWritingTable();
                 FragmentState.WritingState state = table.getFragmentState();
 
                 if (!state.isAnswered()) {
                     table.skipQuestion();
                     setNextTextLabel(state.isAnswered());
-
-//                    competition.addMistake(currentWord, table);
-                    Log.d("getMistakes", "mistakes after rotation: " +
-                            competitionViewModel.getLiveDataCompetition().getValue().getMistakes().toString());
+                    competition.addMistake(currentWord, table);
                 } else {
                     competition.checkAnswer(competition.getCurrentWord(), table);
                     competition.nextQuestion();
@@ -146,7 +144,6 @@ public class WritingTableFragment extends Fragment {
         checkAnswerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                boolean isMistaken = false;
                 rightAnswerText.setVisibility(View.VISIBLE);
                 Word currentWord = competition.getCurrentWord();
                 FullWritingTable fullWritingTable = competition.getFullWritingTable();
@@ -154,30 +151,29 @@ public class WritingTableFragment extends Fragment {
                 String rightAnswer = fullWritingTable.getAnswer();
                 String usersAnswer = fullAnswerEdit.getText().toString().toLowerCase().trim();
                 String answerWithMarks = getUsersAnswerWithMarks(rightAnswer, usersAnswer);
-
-                if (!rightAnswer.equalsIgnoreCase(usersAnswer)) {
-                    competition.addMistake(currentWord, competition.getFullWritingTable());
-                } else {
-                    try {
-                        competition.mistakeByWord(currentWord).fix();
-                    } catch (Competition.NoExistingMistakeException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                // is it should be placed there?
-                if (competition.mistakeExists(currentWord)) {
-                    isMistaken = true;
-                }
-                currentWord.increaseMistakesFrequency(isMistaken);
-                currentWord.adjustRepeat(isMistaken);
-                currentWord.compileStatistics();
-                wordViewModel.updateWord(currentWord);
-                //---
+                boolean isMistaken = false;
+                boolean isUserRight = rightAnswer.equalsIgnoreCase(usersAnswer);
 
                 state.setUsersAnswer(answerWithMarks);
                 state.setAnswered(true);
                 competition.getFullWritingTable().setFragmentState(state);
+
+                if (!isUserRight) {
+                    competition.addMistake(currentWord, competition.getFullWritingTable());
+                } else {
+                    if (competition.mistakeExists(currentWord)) {
+                        isMistaken = true;
+                        try {
+                            competition.mistakeByWord(currentWord).fix();
+                        } catch (Competition.NoExistingMistakeException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    currentWord.increaseMistakesFrequency(isMistaken);
+                    currentWord.adjustRepeat(isMistaken);
+                    currentWord.compileStatistics();
+                    wordViewModel.updateWord(currentWord);
+                }
                 competitionViewModel.setLiveDataCompetition(competition);
             }
         });
