@@ -6,6 +6,8 @@ import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.widget.NestedScrollView;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -33,6 +35,7 @@ import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.nikolai4.ltrainer_tabletest.adapters.ExamplesAdapter;
+import com.nikolai4.ltrainer_tabletest.apiwork.NetDataContainer;
 import com.nikolai4.ltrainer_tabletest.apiwork.NetworkUtils;
 import com.nikolai4.ltrainer_tabletest.db.WordConverter;
 import com.nikolai4.ltrainer_tabletest.model.Example;
@@ -52,6 +55,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class InsertWordActivity extends AppCompatActivity {
@@ -240,7 +244,8 @@ public class InsertWordActivity extends AppCompatActivity {
         showOxfordsInfo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showOxfordsInfo();
+//                showOxfordsInfo();
+                showNetInfo();
             }
         });
 
@@ -458,7 +463,6 @@ public class InsertWordActivity extends AppCompatActivity {
 
 
     // ============================= EXAMPLE =============================
-
     private void showExampleEdit() {
         examplesEditorLayout.setVisibility(View.VISIBLE);
         spinnerExampleCategories.setAdapter(new ArrayAdapter<>(
@@ -621,8 +625,6 @@ public class InsertWordActivity extends AppCompatActivity {
 
 
     //============================= SCREEN =============================
-
-    // common info, statistics, examples, +SOUND (make up how to do this)
     private void fillWordCard() {
         String expression = mWord.getExpression();
         List<String> translates = mWord.getTranslates();
@@ -650,8 +652,30 @@ public class InsertWordActivity extends AppCompatActivity {
         setExamplesForCategory();
     }
 
+        private void showNetInfo() {
+            if (oxfordsLayout.getVisibility() == View.GONE) {
+                oxfordsLayout.setVisibility(View.VISIBLE);
+
+                if (networkViewModel == null) {
+                    networkViewModel = ViewModelProviders.of(InsertWordActivity.this)
+                            .get(NetworkViewModel.class);
+                    networkViewModel.getData(editExpression.getText().toString()).observe(
+                            InsertWordActivity.this, netData -> {
+                        oxfordsInfoTranscription.setText(netData.getTranscription());
+                        oxfordsInfoExamples.setText(netData.getExamples().toString());
+                        oxfordsInfoSynonyms.setText(netData.getTranslates().toString());
+                        oxfordsInfoLexicalCategoriesLabel.setText("lexical categories:");
+                        oxfordsInfoExamplesLabel.setText("examples:");
+                        oxfordsInfoSynonymsLabel.setText("translates:");
+                    });
+                }
+            } else {
+                oxfordsLayout.setVisibility(View.GONE);
+            }
+        }
+
     // should I save oxford's info into DB???
-    private void showOxfordsInfo() {
+//    private void showOxfordsInfo() {
 //        if (oxfordsLayout.getVisibility() == View.GONE) {
 //            oxfordsLayout.setVisibility(View.VISIBLE);
 //
@@ -692,7 +716,7 @@ public class InsertWordActivity extends AppCompatActivity {
 //        } else {
 //            oxfordsLayout.setVisibility(View.GONE);
 //        }
-    }
+//    }
 
     private void setTranscription() {
         if (mWord != null && !mWord.getTranscription().trim().isEmpty()) {

@@ -62,43 +62,28 @@ public class NetworkUtils {
     }
 
     public static String startAudioTask(String word) {
-//        String audioLink = "";
-//        Future<String> future = executor.submit(new Callable<String>() {
-//            @Override
-//            public String call() throws Exception {
-//                String stringJSONObject = getStringJSONObject(word);
-//                return getAudioLink(stringJSONObject);
-//            }
-//        });
-//        try {
-//            audioLink = future.get();
-//        } catch (ExecutionException | InterruptedException e) {
-//            e.printStackTrace();
-//        }
-//        return audioLink;
-
-        // doesn't work at all!
-//        executor.execute(new Runnable() {
-//            @Override
-//            public void run() {
-//                try {
-//                    String stringJSONObject = getStringJSONObject(word);
-//                    mAudioLink = getAudioLink(stringJSONObject);
-//                } catch (NullPointerException e) {
-//                    e.printStackTrace();
-//                    mAudioLink = "";
-//                }
-//            }
-//        });
-//        return mAudioLink;
-
+        String audioLink = "";
+        Future<String> future = executor.submit(new Callable<String>() {
+            @Override
+            public String call() throws Exception {
+                String stringJSONObject = getStringJSONObject(word);
+                return getAudioLink(stringJSONObject);
+            }
+        });
         try {
-            String stringJSONObject = getStringJSONObject(word);
-            return getAudioLink(stringJSONObject);
-        } catch (NullPointerException e) {
+            audioLink = future.get();
+        } catch (ExecutionException | InterruptedException e) {
             e.printStackTrace();
-            return "";
         }
+        return audioLink;
+
+//        try {
+//            String stringJSONObject = getStringJSONObject(word);
+//            return getAudioLink(stringJSONObject);
+//        } catch (NullPointerException e) {
+//            e.printStackTrace();
+//            return "";
+//        }
     }
 
     public static String startTranscriptionTask(String word) {
@@ -167,109 +152,6 @@ public class NetworkUtils {
         Log.d("JSONString", "getStringJSONObject: " + JSONString);
         return JSONString;
     }
-
-//    private static List<String> getInfoFromJSON(String JSONString) {
-//        List<String> entriesList = new ArrayList<>();
-//        StringBuilder wordInfo = new StringBuilder();
-//
-//        String allLexicalCategoriesLabel = "lexical categories:\n";
-//        String synonymsLabel = "synonyms:\n";
-//        String examplesLabel = "examples:\n";
-//        StringBuilder lexicalCategoryString = new StringBuilder();
-//        String transcription = "";
-//        StringBuilder exampleString = new StringBuilder();
-//        StringBuilder synonymsString = new StringBuilder();
-//        String audioFileString = "";
-//
-//        JSONObject mainObject = mainObject(JSONString);
-//        // there could be a few result with their own fields. Let's take only one result.
-//        JSONArray resultsArray = resultsArray(mainObject);
-//        JSONObject resultObject = resultObject(resultsArray, 0);
-//        JSONArray lexicalEntries = lexicalEntries(resultObject);
-//        // there may be a few lexicalEntries separated by lexical category. We're taking 'em all.
-//        for (int i = 0; i < lexicalEntries.length(); i++) {
-//            JSONObject lexicalEntryObject = lexicalEntryObject(lexicalEntries, i);
-//            JSONObject lexicalCategoryObject = lexicalCategoryObject(lexicalEntryObject);
-//
-//            lexicalCategoryString.append(lexicalCategoryString(lexicalCategoryObject));
-//            if (i < lexicalEntries.length()-1) {
-//                lexicalCategoryString.append(", ");
-//            }
-//
-//            JSONArray entries = entries(lexicalEntryObject);
-//            for (int j = 0; j < entries.length(); j++) {
-//                JSONObject entryObject = entryObject(entries, j);
-//
-//                if (transcription.trim().isEmpty()) {
-//                    JSONArray pronunciations = pronunciations(entryObject);
-//                    for (int k = 0; k < pronunciations.length(); k++) {
-//                        JSONObject pronunciationObject = pronunciationObject(pronunciations, k);
-//                        if (transcription.trim().isEmpty()) {
-//                            transcription = phoneticSpelling(pronunciationObject);
-//                        } else {
-//                            break;
-//                        }
-//                    }
-//                }
-//
-//                // what do I need to do to get an audioLink and tie it with the soundButton?
-//                if (audioFileString.trim().isEmpty()) {
-//                    JSONArray pronunciations = pronunciations(entryObject);
-//                    for (int k = 0; k < pronunciations.length(); k++) {
-//                        JSONObject pronunciationObject = pronunciationObject(pronunciations, k);
-//                        if (audioFileString.trim().isEmpty()) {
-//                            audioFileString = audioFile(pronunciationObject);
-//                        } else {
-//                            break;
-//                        }
-//                    }
-//                }
-//
-//                JSONArray senses = senses(entryObject);
-//                for (int k = 0; k < senses.length(); k++) {
-//                    JSONObject sensesObject = sensesObject(senses, k);
-//
-//                    JSONArray examples = examples(sensesObject);
-//                    if (examples.length() > 0) {
-//                        for (int l = 0; l < examples.length(); l++) {
-//                            JSONObject examplesObject = examplesObject(examples, l);
-//                            exampleString.append(exampleString(examplesObject));
-//                            exampleString.append("\n");
-//                        }
-//                    }
-//
-//                    JSONArray synonyms = getSynonyms(sensesObject);
-//                    if (synonyms.length() > 0) {
-//                        for (int l = 0; l < synonyms.length(); l++) {
-//                            JSONObject synonymsObject = synonymsObject(synonyms, l);
-//                            synonymsString.append(synonymString(synonymsObject));
-//                            synonymsString.append("\n");
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//
-//        wordInfo.append(getWord(mainObject));
-//        wordInfo.append("\n");
-//        wordInfo.append(transcription);
-//        wordInfo.append("\n");
-//        wordInfo.append(allLexicalCategoriesLabel);
-//        wordInfo.append(lexicalCategoryString);
-//        wordInfo.append("\n");
-//        wordInfo.append(examplesLabel);
-//        wordInfo.append(exampleString);
-//        wordInfo.append(synonymsLabel);
-//        wordInfo.append(synonymsString);
-//
-//        entriesList.add(wordInfo.toString());
-//
-//        Log.d("examples", "\nexamples: " + exampleString + "\n");
-//        Log.d("synonyms", "\nsynonyms: " + synonymsString + "\n");
-//
-//        Log.d("JSONtag", "\ngetInfoFromJSON: " + entriesList.get(0) + "\n");
-//        return entriesList;
-//    }
 
     private static List<String> getInfoFromJSON(String JSONString) {
         List<String> entriesList = new ArrayList<>();

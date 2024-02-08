@@ -150,10 +150,10 @@ public class Word implements Serializable {
 
     @Ignore
     public Word(Word word) {
-        this.id = word.id;
-        this.expression = word.getExpression();
-        this.translates = word.getTranslates();
-        this.groupCategory = word.getGroupCategory();
+        id = word.id;
+        expression = word.getExpression();
+        translates = word.getTranslates();
+        groupCategory = word.getGroupCategory();
         transcription = word.getTranscription();
         timeStamp = word.getTimeStamp();
         repeatNumber = word.getRepeatNumber();

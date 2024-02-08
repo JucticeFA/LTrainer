@@ -17,8 +17,11 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -42,25 +45,31 @@ public class NetworkService {
 
     private static String mAudioLink = "";
 
+    /*
+    From yandex: translates, transcription, frequency, part of speech
+    From dictionaryapi.dev: pronunciation, examples
+     */
 
-//    public static String startExecutionTask(String word) {
-//
-//    }
+    public static NetDataContainer startDataFetchingTask(String word) {
+        NetDataContainer container = null;
+        Future<NetDataContainer> future = executor.submit(new Callable<NetDataContainer>() {
+            @Override
+            public NetDataContainer call() throws Exception {
+                String yandexData = getStringJSONObject(word, BASE_YANDEX_URL);
+                String dictionarydevData = getStringJSONObject(word, BASE_DICT_URL);
+                return getNetDataContainer(yandexData, dictionarydevData);
+            }
+        });
+        try {
+            container = future.get();
+            Log.d("startDataFetchingTask", "startDataFetchingTask: " + container.getExamples().toString());
+        } catch (ExecutionException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        return container;
+    }
 
     public static String getStringJSONObject(String word, String link) {
-//        AsyncHttpClient client = new DefaultAsyncHttpClient();
-//        client.prepare("POST", "https://yandextranslatezakutynskyv1.p.rapidapi.com/detectLanguage")
-//                .setHeader("content-type", "application/x-www-form-urlencoded")
-//                .setHeader("X-RapidAPI-Key", "c393663511msh96bf3cbd2f6a1c7p14297cjsn096c995123e1")
-//                .setHeader("X-RapidAPI-Host", "YandexTranslatezakutynskyV1.p.rapidapi.com")
-//                .setBody("text=%3CREQUIRED%3E")
-//                .execute()
-//                .toCompletableFuture()
-//                .thenAccept(System.out::println)
-//                .join();
-//
-//        client.close();
-
         String jsonResult = "";
         HttpsURLConnection connection = null;
         BufferedReader reader = null;
@@ -77,16 +86,11 @@ public class NetworkService {
             case BASE_DICT_URL:
                 uri = Uri.parse(BASE_DICT_URL + word).buildUpon().build();
                 break;
-            case BASE_WORDSAPI_URL:
-                uri = Uri.parse(BASE_WORDSAPI_URL + word).buildUpon().build();
-                break;
         }
 
         try {
             URL url = new URL(uri.toString());
             connection = (HttpsURLConnection) url.openConnection();
-            connection.setRequestProperty("X-RapidAPI-Key", "c393663511msh96bf3cbd2f6a1c7p14297cjsn096c995123e1");
-            connection.setRequestMethod("GET");
             connection.connect();
 
             reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
@@ -116,6 +120,69 @@ public class NetworkService {
         return jsonResult;
     }
 
+    public static NetDataContainer getNetDataContainer(String yandexJSON, String dictionarydevJSON) {
+        NetDataContainer container;
+
+        List<String> translates = new ArrayList<>();
+        String transcription = "";
+//        int frequency = 0;
+        List<String> audioLinks = new ArrayList<>();
+        List<String> examples = new ArrayList<>();
+
+        try {
+            JSONObject mainObject = new JSONObject(yandexJSON);
+            JSONArray def = mainObject.getJSONArray("def");
+            for (int i = 0; i < def.length(); i++) {
+                if (transcription.isEmpty()) {
+                    transcription = "["+def.getJSONObject(i).getString("ts")+"]";
+                }
+                JSONArray tr = def.getJSONObject(i).getJSONArray("tr");
+                for (int j = 0; j < tr.length(); j++) {
+                    String text = tr.getJSONObject(j).getString("text");
+                    translates.add(text);
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            JSONArray mainArray = new JSONArray(dictionarydevJSON);
+            JSONObject item = mainArray.getJSONObject(0);
+
+            JSONArray meanings = item.getJSONArray("meanings");
+            JSONArray phonetics = item.getJSONArray("phonetics");
+
+            for (int i = 0; i < phonetics.length(); i++) {
+                JSONObject phoneticObject = phonetics.getJSONObject(i);
+                if (phoneticObject.has("audio")) {
+                    audioLinks.add(phoneticObject.getString("audio"));
+                }
+            }
+            for (int i = 0; i < meanings.length(); i++) {
+                JSONObject meaningObject = meanings.getJSONObject(i);
+                JSONArray definitions = meaningObject.getJSONArray("definitions");
+                for (int j = 0; j < definitions.length(); j++) {
+                    JSONObject definitionObject = definitions.getJSONObject(j);
+                    if (definitionObject.has("example")) {
+                        examples.add(definitionObject.getString("example"));
+                    }
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        container = new NetDataContainer(translates, transcription, audioLinks, examples);
+        Log.d("getNetDataContainer", "getNetDataContainer: " + container.getExamples().toString());
+        return container;
+    }
+
+    /**
+     Scoops translates from Yandex
+     * @param jsonString
+     * @return
+     */
     public static List<String> getTranslates(String jsonString) {
         List<String> translates = new ArrayList<>();
 
@@ -135,8 +202,11 @@ public class NetworkService {
         return translates;
     }
 
-    // i need to get: transcription, synonyms, examples, pronunciation (link to mp3), frequency
-
+    /**
+     Scoops transcription from Yandex
+     * @param jsonString
+     * @return
+     */
     public static String getTranscription(String jsonString) {
         String transcription = "";
         try {
@@ -148,14 +218,39 @@ public class NetworkService {
         return transcription;
     }
 
-//    public static List<String> lexicalCategories(String jsonString) {
-//
+//    public static String getFrequency(String jsonString) {
+//        int frequency = "";
+//        try {
+//            JSONArray mainArray = new JSONObject(jsonString).getJSONArray("items");
+//            frequency = mainArray.getJSONObject(0).getString("phonetic");
+//        } catch (JSONException e) {
+//            throw new RuntimeException(e);
+//        }
+//        return frequency;
+//    }
+
+
+
+//    public static List<String> partsOfSpeech(String jsonString) {
+//        List<String> parts = new ArrayList<>();
+//        try {
+//            JSONArray mainArray = new JSONObject(jsonString).getJSONArray("items");
+//            parts = mainArray.getJSONObject(0).getString("phonetic");
+//        } catch (JSONException e) {
+//            throw new RuntimeException(e);
+//        }
+//        return parts;
 //    }
 
 //    public static List<String> getSynonyms(String jsonString) {
 //
 //    }
 
+    /**
+     Scoops examples from Dictionaryapi.dev
+     * @param jsonString
+     * @return examples
+     */
     public static List<String> getExamples(String jsonString) {
         List<String> examples = new ArrayList<>();
         try {
@@ -182,6 +277,11 @@ public class NetworkService {
         return examples;
     }
 
+    /**
+     Scoops audio links from Dictionaryapi.dev
+     * @param jsonString
+     * @return audio links
+     */
     public static List<String> getAudioLink(String jsonString) {
         List<String> links = new ArrayList<>();
         try {
@@ -203,5 +303,166 @@ public class NetworkService {
         }
         return links;
     }
+
+//    public static String startExecutionTask(String word) {
+//
+//    }
+
+//    public static String getStringJSONObject(String word, String link) {
+////        AsyncHttpClient client = new DefaultAsyncHttpClient();
+////        client.prepare("POST", "https://yandextranslatezakutynskyv1.p.rapidapi.com/detectLanguage")
+////                .setHeader("content-type", "application/x-www-form-urlencoded")
+////                .setHeader("X-RapidAPI-Key", "c393663511msh96bf3cbd2f6a1c7p14297cjsn096c995123e1")
+////                .setHeader("X-RapidAPI-Host", "YandexTranslatezakutynskyV1.p.rapidapi.com")
+////                .setBody("text=%3CREQUIRED%3E")
+////                .execute()
+////                .toCompletableFuture()
+////                .thenAccept(System.out::println)
+////                .join();
+////
+////        client.close();
+//
+//        String jsonResult = "";
+//        HttpsURLConnection connection = null;
+//        BufferedReader reader = null;
+//        Uri uri = Uri.parse(BASE_WORDSAPI_URL + word).buildUpon().build();
+//
+//        switch (link) {
+//            case BASE_YANDEX_URL:
+//                uri = Uri.parse(BASE_YANDEX_URL).buildUpon()
+//                        .appendQueryParameter(YANDEX_KEY_KEY, YANDEX_KEY_VALUE)
+//                        .appendQueryParameter("lang", "en-ru")
+//                        .appendQueryParameter(YANDEX_WORD_KEY, word)
+//                        .build();
+//                break;
+//            case BASE_DICT_URL:
+//                uri = Uri.parse(BASE_DICT_URL + word).buildUpon().build();
+//                break;
+//            case BASE_WORDSAPI_URL:
+//                uri = Uri.parse(BASE_WORDSAPI_URL + word).buildUpon().build();
+//                break;
+//        }
+//
+//        try {
+//            URL url = new URL(uri.toString());
+//            connection = (HttpsURLConnection) url.openConnection();
+//            connection.setRequestProperty("X-RapidAPI-Key", "c393663511msh96bf3cbd2f6a1c7p14297cjsn096c995123e1");
+//            connection.setRequestMethod("GET");
+//            connection.connect();
+//
+//            reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+//
+//            StringBuilder data = new StringBuilder();
+//            String line;
+//            while ((line = reader.readLine()) != null) {
+//                data.append(line);
+//            }
+//            jsonResult = data.toString();
+//
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        } finally {
+//            if (connection != null) {
+//                connection.disconnect();
+//            }
+//            if (reader != null) {
+//                try {
+//                    reader.close();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }
+//        Log.d("jsonResult", "jsonResult: " + jsonResult);
+//        return jsonResult;
+//    }
+
+//    public static List<String> getTranslates(String jsonString) {
+//        List<String> translates = new ArrayList<>();
+//
+//        try {
+//            JSONObject mainObject = new JSONObject(jsonString);
+//            JSONArray def = mainObject.getJSONArray("def");
+//            for (int i = 0; i < def.length(); i++) {
+//                JSONArray tr = def.getJSONObject(i).getJSONArray("tr");
+//                for (int j = 0; j < tr.length(); j++) {
+//                    String text = tr.getJSONObject(j).getString("text");
+//                    translates.add(text);
+//                }
+//            }
+//        } catch (JSONException e) {
+//            throw new RuntimeException(e);
+//        }
+//        return translates;
+//    }
+//
+//    // i need to get: transcription, synonyms, examples, pronunciation (link to mp3), frequency
+//
+//    public static String getTranscription(String jsonString) {
+//        String transcription = "";
+//        try {
+//            JSONArray mainArray = new JSONObject(jsonString).getJSONArray("items");
+//            transcription = mainArray.getJSONObject(0).getString("phonetic");
+//        } catch (JSONException e) {
+//            throw new RuntimeException(e);
+//        }
+//        return transcription;
+//    }
+//
+////    public static List<String> lexicalCategories(String jsonString) {
+////
+////    }
+//
+////    public static List<String> getSynonyms(String jsonString) {
+////
+////    }
+//
+//    public static List<String> getExamples(String jsonString) {
+//        List<String> examples = new ArrayList<>();
+//        try {
+//            JSONObject mainObject = new JSONObject(jsonString);
+//            JSONArray mainArray = mainObject.getJSONArray("items");
+//
+//            for (int i = 0; i < mainArray.length(); i++) {
+//                JSONObject item = mainArray.getJSONObject(i);
+//                JSONArray meanings = item.getJSONArray("meanings");
+//                for (int j = 0; j < meanings.length(); j++) {
+//                    JSONObject meaningObject = meanings.getJSONObject(j);
+//                    JSONArray definitions = meaningObject.getJSONArray("definitions");
+//                    for (int k = 0; k < definitions.length(); k++) {
+//                        JSONObject definitionObject = definitions.getJSONObject(i);
+//                        if (definitionObject.has("example")) {
+//                            examples.add(definitionObject.getString("example"));
+//                        }
+//                    }
+//                }
+//            }
+//        } catch (JSONException e) {
+//            throw new RuntimeException(e);
+//        }
+//        return examples;
+//    }
+//
+//    public static List<String> getAudioLink(String jsonString) {
+//        List<String> links = new ArrayList<>();
+//        try {
+//            JSONObject mainObject = new JSONObject(jsonString);
+//            JSONArray mainArray = mainObject.getJSONArray("items");
+//
+//            for (int i = 0; i < mainArray.length(); i++) {
+//                JSONObject item = mainArray.getJSONObject(i);
+//                JSONArray phonetics = item.getJSONArray("phonetics");
+//                for (int j = 0; j < phonetics.length(); j++) {
+//                    JSONObject phoneticObject = phonetics.getJSONObject(j);
+//                    if (phoneticObject.has("audio")) {
+//                        links.add(phoneticObject.getString("audio"));
+//                    }
+//                }
+//            }
+//        } catch (JSONException e) {
+//            throw new RuntimeException(e);
+//        }
+//        return links;
+//    }
 }
 
