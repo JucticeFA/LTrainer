@@ -40,12 +40,14 @@ public class EnRuTable implements Table {
         competition.setMainTable(competition.getRuEnTable());
     }
 
-    public void inventAnswersForQuestion(WordViewModel model) {
+    public void inventAnswersForQuestion(WordViewModel model, Word currentWord) {
         answers.clear();
         answers.add(rightAnswer);
         while (answers.size() < 4) {
-            String randomAnswer = model.getRandomWord().getTranslates().get(0); // keep in mind a few meanings may be there. handle it!
-            if (!answers.contains(randomAnswer)) {
+            Word randomWord = model.getRandomWord();
+            String randomAnswer = randomWord.getTranslates().get(0); // keep in mind a few meanings may be there. handle it!
+            if (!answers.contains(randomAnswer)
+                    && randomWord.getExpression().equalsIgnoreCase(currentWord.getExpression())) {
                 answers.add(randomAnswer);
                 Log.d("randomAnswer", "randomAnswer: " + randomAnswer);
             }
@@ -53,12 +55,14 @@ public class EnRuTable implements Table {
         Collections.shuffle(answers);
     }
 
-    public void inventAnswersForQuestion(WordRepository wordRepository) {
+    public void inventAnswersForQuestion(WordRepository wordRepository, Word currentWord) {
         answers.clear();
         answers.add(rightAnswer);
         while (answers.size() < 4) {
-            String randomAnswer = wordRepository.getRandomWord().getTranslates().get(0); // keep in mind a few meanings may be there. handle it!
-            if (!answers.contains(randomAnswer)) {
+            Word randomWord = wordRepository.getRandomWord();
+            String randomAnswer = randomWord.getTranslates().get(0); // keep in mind a few meanings may be there. handle it!
+            if (!answers.contains(randomAnswer)
+                    && randomWord.getExpression().equalsIgnoreCase(currentWord.getExpression())) {
                 answers.add(randomAnswer);
                 Log.d("randomAnswer", "randomAnswer: " + randomAnswer);
             }

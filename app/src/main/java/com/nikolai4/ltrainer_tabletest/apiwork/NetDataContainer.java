@@ -10,6 +10,7 @@ public class NetDataContainer {
 //    private List<Integer> frequency;
     private List<String> audioLinks;
     private List<String> examples;
+    private static int nextLink = 0;
 
     public NetDataContainer(List<String> translates, String transcription,
                             List<String> audioLinks, List<String> examples) {
@@ -18,6 +19,17 @@ public class NetDataContainer {
 //        this.frequency = frequency;
         this.audioLinks = audioLinks;
         this.examples = examples;
+    }
+
+    public String getNextAudioLink() {
+        if (audioLinks.isEmpty()) {
+            return "";
+        }
+        nextLink++;
+        if (nextLink > audioLinks.size()-1) {
+            nextLink = 0;
+        }
+        return audioLinks.get(nextLink);
     }
 
     public List<String> getTranslates() {

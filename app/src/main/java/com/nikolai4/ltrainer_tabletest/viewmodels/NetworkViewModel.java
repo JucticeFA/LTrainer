@@ -1,6 +1,5 @@
 package com.nikolai4.ltrainer_tabletest.viewmodels;
 
-import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;

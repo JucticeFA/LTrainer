@@ -169,7 +169,7 @@ public abstract class WordDatabase extends RoomDatabase {
         words.add(new Word("index", Collections.singletonList("индекс"), categories()));
         words.add(new Word("handle", Collections.singletonList("справляться"), categories()));
         words.add(new Word("head", Collections.singletonList("голова"), categories()));
-        words.add(new Word("help", Collections.singletonList("помощьсти"), categories()));
+        words.add(new Word("help", Collections.singletonList("помогать"), categories()));
         words.add(new Word("highlight", Collections.singletonList("выделить"), categories()));
         words.add(new Word("hire", Collections.singletonList("нанимать"), categories()));
         words.add(new Word("host", Collections.singletonList("хозяин"), categories()));

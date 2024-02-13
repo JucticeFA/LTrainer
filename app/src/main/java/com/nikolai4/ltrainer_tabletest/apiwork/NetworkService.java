@@ -103,7 +103,7 @@ public class NetworkService {
             jsonResult = data.toString();
 
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         } finally {
             if (connection != null) {
                 connection.disconnect();
@@ -155,7 +155,7 @@ public class NetworkService {
 
             for (int i = 0; i < phonetics.length(); i++) {
                 JSONObject phoneticObject = phonetics.getJSONObject(i);
-                if (phoneticObject.has("audio")) {
+                if (phoneticObject.has("audio") && !phoneticObject.getString("audio").isEmpty()) {
                     audioLinks.add(phoneticObject.getString("audio"));
                 }
             }
@@ -197,7 +197,7 @@ public class NetworkService {
                 }
             }
         } catch (JSONException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
         return translates;
     }
@@ -213,7 +213,7 @@ public class NetworkService {
             JSONArray mainArray = new JSONObject(jsonString).getJSONArray("items");
             transcription = mainArray.getJSONObject(0).getString("phonetic");
         } catch (JSONException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
         return transcription;
     }
@@ -224,7 +224,7 @@ public class NetworkService {
 //            JSONArray mainArray = new JSONObject(jsonString).getJSONArray("items");
 //            frequency = mainArray.getJSONObject(0).getString("phonetic");
 //        } catch (JSONException e) {
-//            throw new RuntimeException(e);
+//            e.printStackTrace();
 //        }
 //        return frequency;
 //    }
@@ -237,7 +237,7 @@ public class NetworkService {
 //            JSONArray mainArray = new JSONObject(jsonString).getJSONArray("items");
 //            parts = mainArray.getJSONObject(0).getString("phonetic");
 //        } catch (JSONException e) {
-//            throw new RuntimeException(e);
+//            e.printStackTrace();
 //        }
 //        return parts;
 //    }
@@ -272,34 +272,31 @@ public class NetworkService {
                 }
             }
         } catch (JSONException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
         return examples;
     }
 
     /**
      Scoops audio links from Dictionaryapi.dev
-     * @param jsonString
+     * @param dictionarydevJSON
      * @return audio links
      */
-    public static List<String> getAudioLink(String jsonString) {
+    public static List<String> getAudioLink(String dictionarydevJSON) {
         List<String> links = new ArrayList<>();
         try {
-            JSONObject mainObject = new JSONObject(jsonString);
-            JSONArray mainArray = mainObject.getJSONArray("items");
+            JSONArray mainArray = new JSONArray(dictionarydevJSON);
+            JSONObject item = mainArray.getJSONObject(0);
+            JSONArray phonetics = item.getJSONArray("phonetics");
 
-            for (int i = 0; i < mainArray.length(); i++) {
-                JSONObject item = mainArray.getJSONObject(i);
-                JSONArray phonetics = item.getJSONArray("phonetics");
-                for (int j = 0; j < phonetics.length(); j++) {
-                    JSONObject phoneticObject = phonetics.getJSONObject(j);
-                    if (phoneticObject.has("audio")) {
-                        links.add(phoneticObject.getString("audio"));
-                    }
+            for (int i = 0; i < phonetics.length(); i++) {
+                JSONObject phoneticObject = phonetics.getJSONObject(i);
+                if (phoneticObject.has("audio")) {
+                    links.add(phoneticObject.getString("audio"));
                 }
             }
         } catch (JSONException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
         return links;
     }
@@ -360,7 +357,7 @@ public class NetworkService {
 //            jsonResult = data.toString();
 //
 //        } catch (IOException e) {
-//            throw new RuntimeException(e);
+//            e.printStackTrace();
 //        } finally {
 //            if (connection != null) {
 //                connection.disconnect();
@@ -391,7 +388,7 @@ public class NetworkService {
 //                }
 //            }
 //        } catch (JSONException e) {
-//            throw new RuntimeException(e);
+//            e.printStackTrace();
 //        }
 //        return translates;
 //    }
@@ -404,7 +401,7 @@ public class NetworkService {
 //            JSONArray mainArray = new JSONObject(jsonString).getJSONArray("items");
 //            transcription = mainArray.getJSONObject(0).getString("phonetic");
 //        } catch (JSONException e) {
-//            throw new RuntimeException(e);
+//            e.printStackTrace();
 //        }
 //        return transcription;
 //    }
@@ -438,7 +435,7 @@ public class NetworkService {
 //                }
 //            }
 //        } catch (JSONException e) {
-//            throw new RuntimeException(e);
+//            e.printStackTrace();
 //        }
 //        return examples;
 //    }
@@ -460,7 +457,7 @@ public class NetworkService {
 //                }
 //            }
 //        } catch (JSONException e) {
-//            throw new RuntimeException(e);
+//            e.printStackTrace();
 //        }
 //        return links;
 //    }

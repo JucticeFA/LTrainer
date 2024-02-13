@@ -72,7 +72,7 @@ public class CompetitionViewModel extends AndroidViewModel {
 
                 Log.d("questioncompare", "2) question: " + enRuTable.getQuestion());
                 if (enRuTable.getAnswers().isEmpty()) {
-                    enRuTable.inventAnswersForQuestion(wordRepository);
+                    enRuTable.inventAnswersForQuestion(wordRepository, competition.getCurrentWord());
                     Log.d("answersforquestion", "3) table.getAnswers(): " + enRuTable.getAnswers());
                 }
                 liveDataCompetition.postValue(competition);

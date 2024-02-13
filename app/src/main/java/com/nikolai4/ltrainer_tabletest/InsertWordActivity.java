@@ -6,8 +6,6 @@ import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.widget.NestedScrollView;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,6 +17,7 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -36,6 +35,7 @@ import android.widget.Toast;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.nikolai4.ltrainer_tabletest.adapters.ExamplesAdapter;
 import com.nikolai4.ltrainer_tabletest.apiwork.NetDataContainer;
+import com.nikolai4.ltrainer_tabletest.apiwork.NetworkService;
 import com.nikolai4.ltrainer_tabletest.apiwork.NetworkUtils;
 import com.nikolai4.ltrainer_tabletest.db.WordConverter;
 import com.nikolai4.ltrainer_tabletest.model.Example;
@@ -55,7 +55,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class InsertWordActivity extends AppCompatActivity {
@@ -85,7 +84,7 @@ public class InsertWordActivity extends AppCompatActivity {
     private TextView showAllExamples;
     private RelativeLayout examplesLayout;
     private RecyclerView examplesRecycler;
-    private FloatingActionButton saveFloatingButton;
+    private FloatingActionButton saveWordButton;
     private LinearLayoutCompat floatingsLayout;
 
     // examples' editor
@@ -93,7 +92,7 @@ public class InsertWordActivity extends AppCompatActivity {
     private EditText editExample;
     private EditText editExampleTranslate;
     private Spinner spinnerExampleCategories;
-    private ImageButton buttonSaveExample;
+    private ImageButton saveExampleButton;
     private ImageButton buttonCloseExampleEdit;
 
     // oxford's info
@@ -109,24 +108,23 @@ public class InsertWordActivity extends AppCompatActivity {
     private TextView oxfordsInfoSynonymsLabel;
     private TextView oxfordsInfoSynonyms;
 
-
     // notes
     private TextView showNotes;
     private LinearLayoutCompat notesLayout;
     private EditText notesEditor;
 
-    private Word mWord;
+    private Word word;
     private List<String> categories = new ArrayList<>();
     private List<Example> examples = new ArrayList<>();
 
-    private String mAudioLink = "";
+    private String audioLink = "";
 
     private ExamplesAdapter examplesAdapter;
     private WordViewModel wordViewModel;
     private NetworkViewModel networkViewModel;
     private SharedPreferences preferences;
 
-    private int mExamplePosition = -1;
+    private int examplePosition = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -150,38 +148,37 @@ public class InsertWordActivity extends AppCompatActivity {
         Intent intent = getIntent();
         if (intent != null && intent.hasExtra("word_key")) {
             hideKeyboard();
-            mWord = (Word) intent.getSerializableExtra("word_key");
+            word = (Word) intent.getSerializableExtra("word_key");
             fillWordCard();
         }
 
         addExampleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mExamplePosition = -1;
+                examplePosition = -1;
                 showExampleEdit();
             }
         });
 
-        saveFloatingButton.setOnClickListener(new View.OnClickListener() {
+        saveWordButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 saveWord();
-
                 Intent intentToWordbook = new Intent(InsertWordActivity.this, CategoriesActivity.class);
                 startActivity(intentToWordbook);
             }
         });
 
         // if I add new Example picking another category, the word must be added into this category automatically
-        buttonSaveExample.setOnClickListener(new View.OnClickListener() {
+        saveExampleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mWord != null) {
-                    if (!mWord.getExpression().trim().isEmpty() && !mWord.getTranslates().isEmpty()) {
-                        if (!mWord.getGroupCategory().contains(buildExample().getCategory())) {
-                            List<String> wordCategories = new ArrayList<>(mWord.getGroupCategory());
+                if (word != null) {
+                    if (!word.getExpression().trim().isEmpty() && !word.getTranslates().isEmpty()) {
+                        if (!word.getGroupCategory().contains(buildExample().getCategory())) {
+                            List<String> wordCategories = new ArrayList<>(word.getGroupCategory());
                             wordCategories.add(buildExample().getCategory());
-                            mWord.setGroupCategory(wordCategories);
+                            word.setGroupCategory(wordCategories);
                         }
                         saveWord();
                         saveExample();
@@ -195,16 +192,16 @@ public class InsertWordActivity extends AppCompatActivity {
         nestedScrollView.setOnScrollChangeListener(new View.OnScrollChangeListener() {
             @Override
             public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
-                if (scrollY > oldScrollY + 12 && saveFloatingButton.isShown()) {
-                    saveFloatingButton.hide();
+                if (scrollY > oldScrollY + 12 && saveWordButton.isShown()) {
+                    saveWordButton.hide();
                     addExampleButton.setVisibility(View.GONE);
                 }
-                if (scrollY < oldScrollY - 12 && !saveFloatingButton.isShown()) {
-                    saveFloatingButton.show();
+                if (scrollY < oldScrollY - 12 && !saveWordButton.isShown()) {
+                    saveWordButton.show();
                     addExampleButton.setVisibility(View.VISIBLE);
                 }
                 if (scrollY == 0) {
-                    saveFloatingButton.show();
+                    saveWordButton.show();
                     addExampleButton.setVisibility(View.VISIBLE);
                 }
             }
@@ -223,7 +220,7 @@ public class InsertWordActivity extends AppCompatActivity {
         showAllExamples.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showAllExamples(mWord.getExpression());
+                showAllExamples(word.getExpression());
             }
         });
 
@@ -313,7 +310,7 @@ public class InsertWordActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                setAudioLink();
+//                setAudioLink();
             }
         });
     }
@@ -322,8 +319,8 @@ public class InsertWordActivity extends AppCompatActivity {
     private void saveWord() {
         // check weather the word was changed. If so, update all the examples related to this word
         List<Example> allExamples = null;
-        if (mWord != null) {
-            if (!mWord.getExpression().equals(editExpression.getText().toString())) {
+        if (word != null) {
+            if (!word.getExpression().equals(editExpression.getText().toString())) {
                 allExamples = getAllExamplesByWord();
             }
         }
@@ -352,70 +349,70 @@ public class InsertWordActivity extends AppCompatActivity {
             transcription = transcriptionText.getText().toString();
         }
 
-        if (mWord == null) {
-            mWord = new Word(expression, translates, categories);
-            mWord.setTimeStamp(System.currentTimeMillis());
+        if (word == null) {
+            word = new Word(expression, translates, categories);
+            word.setTimeStamp(System.currentTimeMillis());
         } else {
-            mWord.setExpression(expression);
-            mWord.setTranslates(translates);
+            word.setExpression(expression);
+            word.setTranslates(translates);
         }
         saveTranscription(transcription);
-        mWord.setAudioLink(mAudioLink);
-        mWord.setNotes(notes);
+        word.setAudioLink(audioLink);
+        word.setNotes(notes);
     }
 
     private void insertWord() {
-        if (!mWord.getExpression().trim().isEmpty() && !mWord.getTranslates().isEmpty()) {
-            wordViewModel.insertWord(mWord);
+        if (!word.getExpression().trim().isEmpty() && !word.getTranslates().isEmpty()) {
+            wordViewModel.insertWord(word);
         } else {
             Toast.makeText(this, "All the fields must be filled", Toast.LENGTH_SHORT).show();
         }
     }
 
     private void updateWord() {
-        if (!mWord.getExpression().isEmpty() && !mWord.getTranslates().isEmpty()) {
-            wordViewModel.updateWord(mWord);
+        if (!word.getExpression().isEmpty() && !word.getTranslates().isEmpty()) {
+            wordViewModel.updateWord(word);
         } else {
             Toast.makeText(this, "All the fields must be filled", Toast.LENGTH_SHORT).show();
         }
     }
 
     private void resetProgress() {
-        if (mWord != null) {
-            mWord.setDifficulty(Constants.NORMAL_TO_LEARN);
-            mWord.setProgressState(Constants.DEFAULT_PROGRESS_STATE);
-            mWord.setLearningPercentage(0);
-            mWord.setNextRepeat(0);
-            mWord.setRepeatNumber(0);
-            wordViewModel.updateWord(mWord);
+        if (word != null) {
+            word.setDifficulty(Constants.NORMAL_TO_LEARN);
+            word.setProgressState(Constants.DEFAULT_PROGRESS_STATE);
+            word.setLearningPercentage(0);
+            word.setNextRepeat(0);
+            word.setRepeatNumber(0);
+            wordViewModel.updateWord(word);
 
-            setStatisticsInfo(mWord);
+            setStatisticsInfo(word);
         }
     }
 
     private void deleteWordFromCategory() {
         String category = getCurrentCategory();
-        List<String> wordsCategories = new ArrayList<>(mWord.getGroupCategory());
+        List<String> wordsCategories = new ArrayList<>(word.getGroupCategory());
         if (category != null) {
             wordsCategories.remove(category);
-            mWord.setGroupCategory(wordsCategories);
+            word.setGroupCategory(wordsCategories);
 
             if (examples != null && !examples.isEmpty()) {
                 for (int i = 0; i < examples.size(); i++) {
                     wordViewModel.deleteExample(examples.get(i));
                 }
             }
-            wordViewModel.updateWord(mWord);
+            wordViewModel.updateWord(word);
 
             Intent goToCategoriesActivity = new Intent(this, CategoriesActivity.class);
             startActivity(goToCategoriesActivity);
         }
     }
 
-    private void deleteWordFromEverywhere() {
+    private void deleteWordEverywhere() {
         List<Example> allExamples;
-        if (mWord != null) {
-            wordViewModel.deleteWord(mWord);
+        if (word != null) {
+            wordViewModel.deleteWord(word);
             allExamples = getAllExamplesByWord();
             if (allExamples != null && !allExamples.isEmpty()) {
                 for (int i = 0; i < allExamples.size(); i++) {
@@ -435,9 +432,20 @@ public class InsertWordActivity extends AppCompatActivity {
                 MediaPlayer player = new MediaPlayer();
                 player.setAudioStreamType(AudioManager.STREAM_MUSIC);
                 try {
-                    player.setDataSource(mAudioLink);
-                    player.prepare();
-                    player.start();
+                    NetDataContainer container = NetworkService.startDataFetchingTask(editExpression.getText().toString());
+                    audioLink = container.getNextAudioLink();
+                    if (!audioLink.isEmpty()) {
+                        player.setDataSource(audioLink);
+                        player.prepare();
+                        player.start();
+                    } else {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(InsertWordActivity.this, "Can't find this word's sound", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
                 } catch (IOException | NullPointerException e) {
                     e.printStackTrace();
                 }
@@ -450,12 +458,21 @@ public class InsertWordActivity extends AppCompatActivity {
         executor.execute(new Runnable() {
             @Override
             public void run() {
-                if (mWord != null
-                        && mWord.getExpression().equalsIgnoreCase(editExpression.getText().toString())
-                        && !mWord.getAudioLink().trim().isEmpty()) {
-                    mAudioLink = mWord.getAudioLink();
+                if (word != null
+                        && word.getExpression().equalsIgnoreCase(editExpression.getText().toString())
+                        && !word.getAudioLink().trim().isEmpty()) {
+                    audioLink = word.getAudioLink();
                 } else {
-                    mAudioLink = NetworkUtils.startAudioTask(editExpression.getText().toString());
+                    NetDataContainer container = NetworkService.startDataFetchingTask(editExpression.getText().toString());
+                    audioLink = container.getNextAudioLink();
+                    if (audioLink.isEmpty()) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(InsertWordActivity.this, "Can't find this word's sound", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
                 }
             }
         });
@@ -477,16 +494,16 @@ public class InsertWordActivity extends AppCompatActivity {
             }
         });
 
-        if (mExamplePosition == -1) {
+        if (examplePosition == -1) {
             editExample.setText("");
             editExampleTranslate.setText("");
             spinnerExampleCategories.setSelection(categories.indexOf(
                     categoriesSpinner.getSelectedItem().toString()));
         } else {
-            editExample.setText(examples.get(mExamplePosition).getExampleSentence());
-            editExampleTranslate.setText(examples.get(mExamplePosition).getExampleTranslate());
+            editExample.setText(examples.get(examplePosition).getExampleSentence());
+            editExampleTranslate.setText(examples.get(examplePosition).getExampleTranslate());
             spinnerExampleCategories.setSelection(categories.indexOf(
-                    examples.get(mExamplePosition).getExampleSentence()));
+                    examples.get(examplePosition).getExampleSentence()));
         }
     }
 
@@ -496,7 +513,7 @@ public class InsertWordActivity extends AppCompatActivity {
 
         // if an example is new, insert it into the DB. But if an example already exists, edit it.
         if (!exampleSentence.isEmpty()) {
-            if (mExamplePosition == -1) {
+            if (examplePosition == -1) {
                 insertExample(example);
             } else {
                 updateExample(example);
@@ -508,14 +525,14 @@ public class InsertWordActivity extends AppCompatActivity {
     }
 
     private Example buildExample() {
-        if (mExamplePosition == -1) {
+        if (examplePosition == -1) {
             String word = editExpression.getText().toString();
             String exampleSentence = editExample.getText().toString();
             String translate = editExampleTranslate.getText().toString();
             String category = spinnerExampleCategories.getSelectedItem().toString();
             return new Example(word, category, exampleSentence, translate);
         } else {
-            return examples.get(mExamplePosition);
+            return examples.get(examplePosition);
         }
     }
 
@@ -527,17 +544,17 @@ public class InsertWordActivity extends AppCompatActivity {
     }
 
     private void updateExample(Example example) {
-        String word = mWord.getExpression();
+        String word = this.word.getExpression();
         String exampleString = editExample.getText().toString().trim();
         String translateString = editExampleTranslate.getText().toString().trim();
         String categoryString = spinnerExampleCategories.getSelectedItem().toString();
         if (!exampleString.isEmpty()) {
             wordViewModel.updateExample(example);   // is it right?
 
-            examples.get(mExamplePosition).setWord(word);
-            examples.get(mExamplePosition).setExampleSentence(exampleString);
-            examples.get(mExamplePosition).setExampleTranslate(translateString);
-            examples.get(mExamplePosition).setCategory(categoryString);
+            examples.get(examplePosition).setWord(word);
+            examples.get(examplePosition).setExampleSentence(exampleString);
+            examples.get(examplePosition).setExampleTranslate(translateString);
+            examples.get(examplePosition).setCategory(categoryString);
             examplesAdapter.setExamples(examples);
         }
     }
@@ -545,7 +562,7 @@ public class InsertWordActivity extends AppCompatActivity {
     private void updateAllExamplesIfWordIsChanged(List<Example> allExamples) {
         if (allExamples != null && !allExamples.isEmpty()) {
             for (int i = 0; i < allExamples.size(); i++) {
-                allExamples.get(i).setWord(mWord.getExpression());
+                allExamples.get(i).setWord(word.getExpression());
                 wordViewModel.updateExample(allExamples.get(i));
             }
         }
@@ -554,7 +571,7 @@ public class InsertWordActivity extends AppCompatActivity {
     private List<Example> getAllExamplesByWord() {
         List<Example> result = null;
         try {
-            result = wordViewModel.getExamplesByWord(mWord.getExpression());
+            result = wordViewModel.getExamplesByWord(word.getExpression());
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
@@ -595,7 +612,7 @@ public class InsertWordActivity extends AppCompatActivity {
         examplesAdapter.setOnItemClickListener(new ExamplesAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(int position) {
-                mExamplePosition = position;
+                examplePosition = position;
                 showExampleEdit();
             }
         });
@@ -603,7 +620,7 @@ public class InsertWordActivity extends AppCompatActivity {
 
     // ============================= CATEGORY =============================
     private void setExamplesForCategory() {
-        examples = new ArrayList<>(wordViewModel.getExamplesByCategory(mWord.getExpression(), getCurrentCategory()));
+        examples = new ArrayList<>(wordViewModel.getExamplesByCategory(word.getExpression(), getCurrentCategory()));
         examplesAdapter.setExamples(examples);
     }
 
@@ -626,14 +643,13 @@ public class InsertWordActivity extends AppCompatActivity {
 
     //============================= SCREEN =============================
     private void fillWordCard() {
-        String expression = mWord.getExpression();
-        List<String> translates = mWord.getTranslates();
-        editExpression.setText(expression);
+        String expression = word.getExpression();
+        List<String> translates = word.getTranslates();
         String translateString = new WordConverter().fromTranslateList(translates);
         editTranslate.setText(translateString);
+        editExpression.setText(expression);
 
         examplesLayout.setVisibility(View.VISIBLE);
-
         categoriesSpinner.setSelection(categories.indexOf(getCurrentCategory()));
 
         // sound
@@ -646,33 +662,37 @@ public class InsertWordActivity extends AppCompatActivity {
         setNotes();
 
         // statistics
-        setStatisticsInfo(mWord);
+        setStatisticsInfo(word);
 
         // examples
         setExamplesForCategory();
     }
 
-        private void showNetInfo() {
-            if (oxfordsLayout.getVisibility() == View.GONE) {
-                oxfordsLayout.setVisibility(View.VISIBLE);
+    private void showNetInfo() {
+        if (oxfordsLayout.getVisibility() == View.GONE) {
+            oxfordsLayout.setVisibility(View.VISIBLE);
 
-                if (networkViewModel == null) {
-                    networkViewModel = ViewModelProviders.of(InsertWordActivity.this)
-                            .get(NetworkViewModel.class);
-                    networkViewModel.getData(editExpression.getText().toString()).observe(
-                            InsertWordActivity.this, netData -> {
+            if (networkViewModel == null) {
+                networkViewModel = ViewModelProviders.of(InsertWordActivity.this)
+                        .get(NetworkViewModel.class);
+                networkViewModel.getData(editExpression.getText().toString()).observe(
+                InsertWordActivity.this, netData -> {
+                    if (netData != null) {
                         oxfordsInfoTranscription.setText(netData.getTranscription());
                         oxfordsInfoExamples.setText(netData.getExamples().toString());
                         oxfordsInfoSynonyms.setText(netData.getTranslates().toString());
                         oxfordsInfoLexicalCategoriesLabel.setText("lexical categories:");
                         oxfordsInfoExamplesLabel.setText("examples:");
                         oxfordsInfoSynonymsLabel.setText("translates:");
-                    });
-                }
-            } else {
-                oxfordsLayout.setVisibility(View.GONE);
+                    } else {
+                        Toast.makeText(this, "No data or the word is incorrect", Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
+        } else {
+            oxfordsLayout.setVisibility(View.GONE);
         }
+    }
 
     // should I save oxford's info into DB???
 //    private void showOxfordsInfo() {
@@ -719,16 +739,16 @@ public class InsertWordActivity extends AppCompatActivity {
 //    }
 
     private void setTranscription() {
-        if (mWord != null && !mWord.getTranscription().trim().isEmpty()) {
-            transcriptionText.setText(mWord.getTranscription());
+        if (word != null && !word.getTranscription().trim().isEmpty()) {
+            transcriptionText.setText(word.getTranscription());
         } else if (!editTranscription.getText().toString().isEmpty()) {
             transcriptionText.setText(editTranscription.getText().toString());
         }
     }
 
     private void saveTranscription(String transcription) {
-        if (mWord != null) {
-            mWord.setTranscription(transcription);
+        if (word != null) {
+            word.setTranscription(transcription);
         }
     }
 
@@ -746,14 +766,14 @@ public class InsertWordActivity extends AppCompatActivity {
     }
 
     private void setNotes() {
-        if (mWord != null && !mWord.getNotes().isEmpty()) {
-            notesEditor.setText(mWord.getNotes());
+        if (word != null && !word.getNotes().isEmpty()) {
+            notesEditor.setText(word.getNotes());
         }
     }
 
     private void saveNotes() {
-        if (mWord != null && !notesEditor.getText().toString().trim().isEmpty()) {
-            mWord.setNotes(notesEditor.getText().toString());
+        if (word != null && !notesEditor.getText().toString().trim().isEmpty()) {
+            word.setNotes(notesEditor.getText().toString());
         }
     }
 
@@ -800,7 +820,7 @@ public class InsertWordActivity extends AppCompatActivity {
         addExampleButton = findViewById(R.id.add_example);
         floatingsLayout = findViewById(R.id.floatings_layout_word_card);
         nestedScrollView = findViewById(R.id.nested_scroll_view_word_card);
-        saveFloatingButton = findViewById(R.id.save_floating_button);
+        saveWordButton = findViewById(R.id.save_floating_button);
 
         // expression
         editExpression = findViewById(R.id.new_expression_word_card_edit);
@@ -827,7 +847,7 @@ public class InsertWordActivity extends AppCompatActivity {
         editExample = findViewById(R.id.example_edit_word_card);
         editExampleTranslate = findViewById(R.id.example_translate_edit_word_card);
         spinnerExampleCategories = findViewById(R.id.categories_spinner_example_word_card);
-        buttonSaveExample = findViewById(R.id.save_example_word_card);
+        saveExampleButton = findViewById(R.id.save_example_word_card);
         buttonCloseExampleEdit = findViewById(R.id.close_button_word_card);
         examplesRecycler = findViewById(R.id.recycler_example_insert);
         examplesAdapter = new ExamplesAdapter(this);
@@ -887,7 +907,7 @@ public class InsertWordActivity extends AppCompatActivity {
                 break;
             case R.id.full_delete_card_menu:
                 // Delete from everywhere
-                deleteWordFromEverywhere();
+                deleteWordEverywhere();
                 break;
         }
         return true;

@@ -108,7 +108,7 @@ public class EnRuTableFragment extends Fragment {
                 EnRuTable table = c.getEnRuTable();
                 Log.d("answersforquestion", "1) table.getAnswers(): " + table.getAnswers());
                 if (table.getAnswers().isEmpty()) {
-                    table.inventAnswersForQuestion(wordViewModel);
+                    table.inventAnswersForQuestion(wordViewModel, c.getCurrentWord());
                     Log.d("answersforquestion", "2) table.getAnswers(): " + table.getAnswers());
                 }
                 tieDataToViews(table);
